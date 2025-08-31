@@ -1,0 +1,28 @@
+Return-Path: <sender@example.com>
+X-Original-To: recipient@example.com
+Delivered-To: recipient@example.com
+Received: from mail.example.com (mail.example.com [192.0.2.1])
+	by mx.example.com (Postfix) with ESMTP id 12345ABC
+	for <recipient@example.com>; Mon, 1 Jan 2024 12:00:00 +0000 (UTC)
+Message-ID: <test-email-123@example.com>
+Date: Mon, 1 Jan 2024 12:00:00 +0000
+From: Test Sender <sender@example.com>
+User-Agent: TestClient/1.0
+MIME-Version: 1.0
+To: Test Recipient <recipient@example.com>
+Subject: Test Email for PubSec Info Assistant
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+This is a test email message for the PubSec Info Assistant document processing pipeline.
+
+The email contains important information that should be indexed and searchable:
+- Test email processing functionality
+- Email content extraction capabilities  
+- Support for EML file format
+- Document processing pipeline validation
+
+This email demonstrates the system's ability to process and index email content for search and retrieval.
+
+Best regards,
+Test System

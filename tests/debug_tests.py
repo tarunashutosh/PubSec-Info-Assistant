@@ -14,7 +14,7 @@ subprocess.call(['python', 'run_tests.py', '--storage_account_url', STORAGE_ACCO
     '--search_service_endpoint', AZURE_SEARCH_SERVICE_ENDPOINT, \
     '--search_index', AZURE_SEARCH_INDEX, \
     '--wait_time_seconds', '60', \
-    '--file_extensions', 'docx', 'pdf', 'html', 'jpg', 'png', 'csv', 'md', 'pptx', 'txt', 'xlsx', 'xml'])
+    '--file_extensions', 'docx', 'pdf', 'html', 'jpg', 'png', 'csv', 'md', 'pptx', 'txt', 'xlsx', 'xml', 'json', 'tsv', 'eml', 'msg'])
 
 subprocess.call(['python', 'run_api_tests.py', '--enrichment_service_endpoint', ENRICHMENT_APPSERVICE_NAME, \
     '--azure_websites_domain', AZURE_WEBSITE_DOMAIN])

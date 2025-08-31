@@ -33,14 +33,18 @@ search_queries = {
     "pdf": "Each brushstroke and note played adds to the vibrant tapestry of human culture,",  
     "docx": "Sed non urna nec elit auctor elementum. Sed auctor eget urna at faucibus.",  
     "html": "Regeringen investerer i infrastrukturudvikling for at opretholde moderne og effektive transportsystemer", 
-    "jpg": "This word, nothing. blank not space.",  
-    "png": "kitten animal kitty funny OCR Text: FAILED DOO WIITH DAILY DRIGDETY",  
+    "jpg": "Test JPEG Image Document Processing Visual content analysis Test data for image OCR",  
+    "png": "Test PNG Image PubSec Info Assistant Image processing test OCR and content extraction",  
     "csv": "<td>Hill, Freeman and Johnson</td> <td>xcarter@example.com</td> <td>61</td> </tr> <tr> <td>Johnson Group</td>", 
     "md": "Viel Spaß beim Entdecken und Üben dieser Wörter!",  
     "pptx": "Randomly Generated For PPTX This data test Title for PPTX Text paragraph in power point",  
     "txt": "The deep green that isn't the color of clouds, but came with these.",  
     "xlsx": "<td>Turnerhaven</td> <td>9580 Boyd Point Suite 139</td> <td>67199</td>", 
-    "xml": "John Doe john.doe@example.com 123-456-7890 42 Alice Smith"  
+    "xml": "John Doe john.doe@example.com 123-456-7890 42 Alice Smith",
+    "json": "JSON format data interchange lightweight human readable test document processing pipeline",
+    "tsv": "John Smith Engineering Seattle john.smith@example.com Test Data For TSV Processing",
+    "eml": "Test email processing functionality Email content extraction capabilities Support for EML file format",
+    "msg": "MSG files are Microsoft Outlook email message format Test content for MSG file processing"
 }
 
 def parse_arguments():
