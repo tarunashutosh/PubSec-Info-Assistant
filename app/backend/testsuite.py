@@ -470,7 +470,7 @@ def test_upload_file_long_tags():
 # This test requires some amount of data to be present and processed in IA
 # It is commented out because processing the data takes time and the test will fail if the data is not processed
 # Change the question to a valid question that will produce citations if you want to run this test
-'''
+"""
 def test_get_citation_obj():
     question = "Who is the CEO of Microsoft?"
     response = client.post("/chat", json={
@@ -502,7 +502,7 @@ def test_get_citation_obj():
             work_citation_lookup = eventJson["work_citation_lookup"]
             
     # Define the regex pattern
-    pattern = r'\[(File[0-9])\]'
+    pattern = r'\\[(File[0-9])\\]'
     
     # Search for the first match
     match = re.search(pattern, content)
@@ -513,4 +513,247 @@ def test_get_citation_obj():
         assert response.status_code == 200
     else:
         pytest.fail("No citation was found in work response. Unable to make a call to get citation object.")
-'''
+"""
+
+# Additional comprehensive test cases for file uploads and edge cases
+
+def test_upload_json_file():
+    """Test uploading JSON file"""
+    with open("test_data/test_example.json", "rb") as file:
+        response = client.post(
+            "/file",
+            files={"file": ("test_example.json", file, "application/json")},
+            data={"file_path": "test_example.json", "tags": "json,test,data"}
+        )
+        assert response.status_code == 200
+        assert response.json() == {"message": "File 'test_example.json' uploaded successfully"}
+
+def test_upload_tsv_file():
+    """Test uploading TSV file"""
+    with open("test_data/test_example.tsv", "rb") as file:
+        response = client.post(
+            "/file",
+            files={"file": ("test_example.tsv", file, "text/tab-separated-values")},
+            data={"file_path": "test_example.tsv", "tags": "tsv,test,data"}
+        )
+        assert response.status_code == 200
+        assert response.json() == {"message": "File 'test_example.tsv' uploaded successfully"}
+
+def test_upload_eml_file():
+    """Test uploading EML email file"""
+    with open("test_data/test_example.eml", "rb") as file:
+        response = client.post(
+            "/file",
+            files={"file": ("test_example.eml", file, "message/rfc822")},
+            data={"file_path": "test_example.eml", "tags": "eml,email,test"}
+        )
+        assert response.status_code == 200
+        assert response.json() == {"message": "File 'test_example.eml' uploaded successfully"}
+
+def test_upload_file_with_unicode_name():
+    """Test uploading file with unicode characters in name"""
+    with open("test_data/parts_inventory.csv", "rb") as file:
+        response = client.post(
+            "/file",
+            files={"file": ("测试文件_parts_inventory.csv", file, "text/csv")},
+            data={"file_path": "测试文件_parts_inventory.csv", "tags": "unicode,test"}
+        )
+        assert response.status_code == 200
+        assert response.json() == {"message": "File '测试文件_parts_inventory.csv' uploaded successfully"}
+
+def test_upload_file_with_special_tags():
+    """Test uploading file with special characters in tags"""
+    with open("test_data/parts_inventory.csv", "rb") as file:
+        response = client.post(
+            "/file",
+            files={"file": ("parts_inventory.csv", file, "text/csv")},
+            data={"file_path": "parts_inventory.csv", "tags": "test-tag,tag_with_underscore,tag.with.dots,tag@special"}
+        )
+        assert response.status_code == 200
+        assert response.json() == {"message": "File 'parts_inventory.csv' uploaded successfully"}
+
+def test_upload_file_empty_tags():
+    """Test uploading file with empty tags string"""
+    with open("test_data/parts_inventory.csv", "rb") as file:
+        response = client.post(
+            "/file",
+            files={"file": ("parts_inventory.csv", file, "text/csv")},
+            data={"file_path": "parts_inventory.csv", "tags": ""}
+        )
+        assert response.status_code == 200
+        assert response.json() == {"message": "File 'parts_inventory.csv' uploaded successfully"}
+
+def test_upload_file_very_long_path():
+    """Test uploading file with very long folder path"""
+    long_path = "a" * 50 + "/" + "b" * 50 + "/" + "c" * 50 + "/parts_inventory.csv"
+    with open("test_data/parts_inventory.csv", "rb") as file:
+        response = client.post(
+            "/file",
+            files={"file": ("parts_inventory.csv", file, "text/csv")},
+            data={"file_path": long_path, "tags": "test,long_path"}
+        )
+        assert response.status_code == 200
+        assert response.json() == {"message": "File 'parts_inventory.csv' uploaded successfully"}
+
+def test_upload_file_zero_size():
+    """Test uploading zero-byte file"""
+    file_content = b""
+    file = io.BytesIO(file_content)
+    file.name = "empty.txt"
+    
+    response = client.post(
+        "/file",
+        files={"file": (file.name, file, "text/plain")},
+        data={"file_path": "empty.txt", "tags": "test,empty"}
+    )
+    # Should handle empty files gracefully
+    assert response.status_code == 200
+    assert response.json() == {"message": "File 'empty.txt' uploaded successfully"}
+
+def test_upload_multiple_files_same_name():
+    """Test uploading multiple files with same name to different folders"""
+    with open("test_data/parts_inventory.csv", "rb") as file1:
+        response1 = client.post(
+            "/file",
+            files={"file": ("parts_inventory.csv", file1, "text/csv")},
+            data={"file_path": "folder1/parts_inventory.csv", "tags": "test,folder1"}
+        )
+        assert response1.status_code == 200
+
+    with open("test_data/parts_inventory.csv", "rb") as file2:
+        response2 = client.post(
+            "/file",
+            files={"file": ("parts_inventory.csv", file2, "text/csv")},
+            data={"file_path": "folder2/parts_inventory.csv", "tags": "test,folder2"}
+        )
+        assert response2.status_code == 200
+
+def test_chat_api_invalid_approach():
+    """Test chat API with invalid approach number"""
+    response = client.post("/chat", json={
+        "history":[{"user":"test question"}],
+        "approach":999,  # Invalid approach
+        "overrides":{
+            "semantic_ranker":True,
+            "semantic_captions":False,
+            "top":5,
+            "suggest_followup_questions":False,
+            "user_persona":"analyst",
+            "system_persona":"an Assistant",
+            "ai_persona":"",
+            "response_length":2048,
+            "response_temp":0.6,
+            "selected_folders":"All",
+            "selected_tags":""},
+        "citation_lookup":{},
+        "thought_chain":{}})
+    # Should handle invalid approach gracefully
+    assert response.status_code in [200, 400, 422]
+
+def test_chat_api_missing_required_fields():
+    """Test chat API with missing required fields"""
+    response = client.post("/chat", json={
+        "history":[{"user":"test question"}]
+        # Missing approach, overrides, etc.
+    })
+    assert response.status_code in [400, 422]
+
+def test_chat_api_invalid_temperature():
+    """Test chat API with invalid temperature values"""
+    response = client.post("/chat", json={
+        "history":[{"user":"test question"}],
+        "approach":1,
+        "overrides":{
+            "semantic_ranker":True,
+            "semantic_captions":False,
+            "top":5,
+            "suggest_followup_questions":False,
+            "user_persona":"analyst",
+            "system_persona":"an Assistant",
+            "ai_persona":"",
+            "response_length":2048,
+            "response_temp":2.5,  # Invalid temperature > 2.0
+            "selected_folders":"All",
+            "selected_tags":""},
+        "citation_lookup":{},
+        "thought_chain":{}})
+    assert response.status_code in [200, 400, 422]
+
+def test_chat_api_empty_history():
+    """Test chat API with empty history"""
+    response = client.post("/chat", json={
+        "history":[],  # Empty history
+        "approach":1,
+        "overrides":{
+            "semantic_ranker":True,
+            "semantic_captions":False,
+            "top":5,
+            "suggest_followup_questions":False,
+            "user_persona":"analyst",
+            "system_persona":"an Assistant",
+            "ai_persona":"",
+            "response_length":2048,
+            "response_temp":0.6,
+            "selected_folders":"All",
+            "selected_tags":""},
+        "citation_lookup":{},
+        "thought_chain":{}})
+    assert response.status_code in [200, 400, 422]
+
+def test_chat_api_very_long_question():
+    """Test chat API with extremely long question"""
+    long_question = "A" * 10000  # Very long question
+    response = client.post("/chat", json={
+        "history":[{"user": long_question}],
+        "approach":1,
+        "overrides":{
+            "semantic_ranker":True,
+            "semantic_captions":False,
+            "top":5,
+            "suggest_followup_questions":False,
+            "user_persona":"analyst",
+            "system_persona":"an Assistant",
+            "ai_persona":"",
+            "response_length":2048,
+            "response_temp":0.6,
+            "selected_folders":"All",
+            "selected_tags":""},
+        "citation_lookup":{},
+        "thought_chain":{}})
+    # Should handle very long questions
+    assert response.status_code in [200, 400, 413, 422]
+
+def test_file_upload_unsupported_extension():
+    """Test uploading file with unsupported extension"""
+    file_content = b"test content"
+    file = io.BytesIO(file_content)
+    file.name = "test.unknown_extension"
+    
+    response = client.post(
+        "/file",
+        files={"file": (file.name, file, "application/octet-stream")},
+        data={"file_path": "test.unknown_extension", "tags": "test"}
+    )
+    # Should either accept or reject gracefully
+    assert response.status_code in [200, 400, 415, 422]
+
+def test_chat_api_malformed_json():
+    """Test chat API with malformed JSON in citation_lookup"""
+    response = client.post("/chat", json={
+        "history":[{"user":"test question"}],
+        "approach":1,
+        "overrides":{
+            "semantic_ranker":True,
+            "semantic_captions":False,
+            "top":5,
+            "suggest_followup_questions":False,
+            "user_persona":"analyst",
+            "system_persona":"an Assistant",
+            "ai_persona":"",
+            "response_length":2048,
+            "response_temp":0.6,
+            "selected_folders":"All",
+            "selected_tags":""},
+        "citation_lookup":"invalid_json_string",  # Should be dict
+        "thought_chain":{}})
+    assert response.status_code in [200, 400, 422]
